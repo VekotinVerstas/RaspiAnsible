@@ -1,0 +1,15 @@
+- name: Load i2c module
+  lineinfile:
+    path: /etc/modules
+    line: i2c-dev
+
+- name: Add i2c to boot config
+  lineinfile: 
+    path: /boot/config.txt
+    line: "dtparam=i2c_arm=on"
+
+- name: comment out possible "i2c off"
+  replace:
+    path: /boot/config.txt
+    regexp: '^(dtparam=i2c_arm=off).*'
+    replace: '# \1  # Commented out by ansible' 

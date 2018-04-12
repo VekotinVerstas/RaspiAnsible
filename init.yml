@@ -1,0 +1,15 @@
+# Create a management user to the host mentioned in extra-vars 'target'.
+# Usage (will ask sudo password):
+#ansible-playbook -i local.inventory init.yml -K --extra-vars "target=HOSTNAME"
+# - HOSTNAME may be all
+# - optionally add -u sudousername parameter
+
+---
+
+- hosts: all
+  gather_facts: yes
+  become: yes
+  vars_files:
+  - config.yml
+  roles:
+  - raspi

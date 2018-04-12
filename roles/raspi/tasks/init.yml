@@ -1,0 +1,120 @@
+- name: Set hostname
+  tags: init
+  hostname: name={{ hostname }}
+
+- name: Add hostname to /etc/hosts
+  tags: [init,raspberrypi]
+  lineinfile: dest=/etc/hosts line="127.0.1.1 {{ hostname }}"
+
+- name: Speed up ssh/sudo in some networks
+  tags: [init,raspberrypi]
+  lineinfile: dest=/etc/ssh/sshd_config line="UseDNS no"
+
+- name: Generate some locales
+  tags: [init]
+  locale_gen: name={{ item }} state=present
+  with_items:
+  - en_GB.UTF-8
+  - en_US.UTF-8
+  - fi_FI.UTF-8
+
+- name: Set /etc/localtime to {{ timezone }}
+  tags: [init,raspberrypi]
+  copy: src=/usr/share/zoneinfo/{{ timezone }}
+        dest=/etc/localtime
+        owner=root
+        group=root
+        mode=0644
+        backup=yes
+  when: ansible_os_family == "Debian"
+
+- name: Set /etc/timezone to {{ timezone }}
+  tags: [init,raspberrypi]
+  template: dest=/etc/timezone src=timezone.j2
+  when: ansible_os_family == "Debian"
+
+#  notify: update tzdata
+
+- name: update tzdata
+  tags: [init,raspberrypi]
+  command: dpkg-reconfigure --frontend noninteractive tzdata
+
+
+#- name: Install apt requirements (Ubuntu 16.04)
+#  become: yes
+#  apt: pkg=aptitude
+
+- name: Update all packages to the latest version
+  tags: [init,apt,raspberrypi]
+  apt: upgrade=dist update-cache=yes cache_valid_time=86400
+
+#- name: Upgrade all packages to their latest (stable) versions
+#  tags: apt
+#  apt: upgrade=safe update-cache=yes cache_valid_time=86400
+
+- name: Install mandatory packages to make system more secure
+  tags: [init,apt,raspberrypi]
+  apt: pkg={{ item }} state=present update-cache=yes cache_valid_time=86400
+  with_items:
+  - fail2ban
+
+- name: Install mandatory packages to make system usable
+  tags: [init,apt,raspberrypi]
+  apt: pkg={{ item }} state=present update-cache=yes cache_valid_time=86400
+  with_items:
+  - vim
+  - keychain
+  - git
+  - sudo
+  - rsync
+  - screen
+
+- name: Install mandatory packages to compile stuff (etc. python modules)
+  tags: [init,raspberrypi,apt,development]
+  apt: pkg={{ item }} state=present update-cache=yes cache_valid_time=86400
+  with_items:
+  - build-essential
+  - autoconf
+  - libtool
+  - gettext
+  - libatlas-base-dev
+  - python-dev
+  - python3-dev
+  - python-virtualenv
+  - python3-virtualenv
+  - virtualenvwrapper
+  - python-pip
+  - python3-pip
+  - g++
+  - libxml2-dev
+  - libxslt-dev
+  - libyaml-dev
+  - libpng-dev
+  - libopenjpeg-dev
+  - libtiff5-dev
+  - libwebp-dev
+  - libjpeg-dev
+  - zlib1g-dev
+  - libfontconfig1-dev
+  - libxft-dev
+  - libfreetype6-dev
+
+- name: Link some files to /usr/lib so e.g. pip install pillow is happy
+  tags: [init,raspberrypi]
+  shell: ln -vs /usr/lib/*-linux-gnu*/{libfreetype.so,libz.so,libjpeg.so} /usr/lib/
+  warn: False
+  ignore_errors: True
+
+- name: Install other stuff
+  tags: [init,apt,raspberrypi]
+  apt: pkg={{ item }} state=present update-cache=yes cache_valid_time=86400
+  with_items:
+  - rpi-update
+  - i2c-tools
+  - python3-smbus
+  - python-smbus
+
+- name: Run rpi-update
+  tags: [init,raspberrypi]
+  command: rpi-update
+  become: true

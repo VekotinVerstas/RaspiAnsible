@@ -1,0 +1,119 @@
+- name: Add i2s lines to boot config
+  tags: i2ssound
+  lineinfile:
+    path: /boot/config.txt
+    line: '{{ item }}'
+  with_items:
+    - "dtparam=i2s=on"
+
+- name: Load sound module
+  tags: i2ssound
+  lineinfile:
+    path: /etc/modules
+    line: snd-bcm2835
+
+- name: Restart Raspi
+  tags: [i2ssound,restart]
+  shell: sleep 2 && shutdown -r now
+  async: 1
+  poll: 0
+  become: yes
+  become_method: sudo
+  ignore_errors: true
+
+- name: Waiting for Raspi to come back after reboot
+  tags: [i2ssound,restart]
+  wait_for_connection:
+    delay: 30
+    timeout: 300
+
+- name: Install packages to compile kernel modules
+  tags: i2ssound
+  apt: pkg={{ item }} state=present update-cache=yes cache_valid_time=86400
+  with_items:
+  - git
+  - bc
+  - libncurses5-dev
+
+- name: Download rpi-source
+  tags: i2ssound
+  get_url:
+    url: https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source
+    dest: /usr/bin/rpi-source
+    mode: 0755
+
+- name: Run rpi-source 1/2
+  tags: i2ssound
+  command: /usr/bin/rpi-source -q --tag-update
+
+- name: Run rpi-source 2/2
+  tags: i2ssound
+  command: /usr/bin/rpi-source --skip-gcc
+  ignore_errors: True
+
+- name: Mount debugfs
+  tags: i2ssound
+  command: mount -t debugfs debugs /sys/kernel/debug
+  ignore_errors: True
+
+- name: Return whether we are in Raspberry Pi 3 or Zero
+  tags: i2ssound
+  command: grep i2s /sys/kernel/debug/asoc/platforms
+  register: platta
+
+- name: Clone git repo
+  tags: i2ssound
+  git:
+    repo: 'https://github.com/PaulCreaser/rpi-i2s-audio'
+    dest: /usr/local/src/rpi-i2s-audio
+    update: no
+
+# /usr/local/src/rpi-i2s-audio/my_loader.c
+# if Raspi Zero:
+# -.platform = "3f203000.i2s",
+# - .name = "3f203000.i2s",
+# + .platform = "20203000.i2s",
+# + .name = "20203000.i2s",
+
+- name: Copy build script
+  tags: i2ssound
+  copy: src=build_i2s_module.sh
+        dest=/usr/local/src/rpi-i2s-audio/build_i2s_module.sh
+        owner=root
+        group=root
+        mode=0755
+
+- name: Run build script
+  tags: i2ssound
+  chdir: /usr/local/src/rpi-i2s-audio
+  command: sh /usr/local/src/rpi-i2s-audio/build_i2s_module.sh
+
+# sudo insmod my_loader.ko
+#- name: Install module
+#  tags: i2ssound
+#  chdir: /usr/local/src/rpi-i2s-audio
+#  command: "insmod my_loader.ko"
+
+# sudo cp my_loader.ko /lib/modules/$(uname -r)
+#- name: Copy module
+#  tags: i2ssound
+#  chdir: /usr/local/src/rpi-i2s-audio
+#  command: "cp my_loader.ko /lib/modules/$(uname -r)"
+
+# echo 'my_loader' | sudo tee --append /etc/modules > /dev/null
+- name: Load module in boot
+  tags: i2ssound
+  lineinfile:
+    path: /etc/modules
+    line: my_loader
+
+# sudo depmod -a
+- name: depmod -a
+  tags: i2ssound
+  command: depmod -a
+
+# sudo modprobe my_loader
+- name: modprobe my_loader
+  tags: i2ssound
+  command: modprobe my_loader
+
