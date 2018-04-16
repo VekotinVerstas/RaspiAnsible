@@ -17,7 +17,7 @@ Run ansible-playbook on remote Raspi using command:
 
 ```
 ansible-playbook -i '10.255.255.100,' -u pi init.yml \
-  --extra-vars "hostname=uniqhost ap_ssid=SSID ap_passphrase=PASS"
+  --extra-vars "hostname=uniqhost ap_ssid=SSID ap_passphrase=PASS" \
   --tags "i2ssound"
 ```
 
