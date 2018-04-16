@@ -3,3 +3,4 @@
 - include: modules.yml
 - include: camera.yml
 - include: i2ssound.yml
+- include: wifiscan.yml

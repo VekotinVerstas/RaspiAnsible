@@ -1,0 +1,65 @@
+- name: Remove "avahi-daemon" package
+  tags: wifiscan
+  apt: name=avahi-daemon state=absent
+
+- name: Install Wifi scanning related packages
+  tags: wifiscan
+  apt: pkg={{ item }} state=present update-cache=yes cache_valid_time=86400
+  with_items:
+  - libssl-dev
+  - libnl-genl-3-200
+  - libnl-genl-3-dev
+  - ethtool
+  - rfkill
+  - iw
+  - scapy
+  - tcpdump
+
+#- name: Download aricrack-ng
+#  tags: wifiscan
+#  get_url:
+#    url: http://download.aircrack-ng.org/aircrack-ng-1.2.tar.gz
+#    dest: /usr/local/src/aircrack-ng-1.2.tar.gz
+#    mode: 0644
+
+- name: Copy aricrack-ng
+  tags: wifiscan
+  copy: src=aircrack-ng-1.2.tar.gz
+        dest=/usr/local/src/aircrack-ng-1.2.tar.gz
+        owner=root
+        group=root
+        mode=0644
+
+- name: Extract aircrack-ng-1.2.tar.gz into /usr/local/src/
+  tags: wifiscan
+  unarchive:
+    src: /usr/local/src/aircrack-ng-1.2.tar.gz
+    dest: /usr/local/src/
+    remote_src: yes
+
+- name: Copy build script
+  tags: wifiscan
+  copy: src=build_aircrack-ng.sh
+        dest=/usr/local/src/aircrack-ng-1.2/build_aircrack-ng.sh
+        owner=root
+        group=root
+        mode=0755
+
+- name: Run build script
+  tags: wifiscan
+  become: yes
+  chdir: /usr/local/src/aircrack-ng-1.2
+  command: sh /usr/local/src/aircrack-ng-1.2/build_aircrack-ng.sh
+
+- name: Run airodump-ng-oui-update
+  tags: wifiscan
+  command: airodump-ng-oui-update
+
+# Work on progress below.
+# Also sample python script wifi scanning script is needed
+
+#sudo airmon-ng start wlan0
+## Should start wlan0 on monitor mode as mon0 and we can try airodump-ng:
+#
+#sudo airodump-ng mon0
+## And we should see some info about current wireless networks around us.
