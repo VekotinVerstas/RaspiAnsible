@@ -33,24 +33,13 @@
   template: dest=/etc/timezone src=timezone.j2
   when: ansible_os_family == "Debian"
 
-#  notify: update tzdata
-
 - name: update tzdata
   tags: [init,raspberrypi]
   command: dpkg-reconfigure --frontend noninteractive tzdata
 
-
-#- name: Install apt requirements (Ubuntu 16.04)
-#  become: yes
-#  apt: pkg=aptitude
-
 - name: Update all packages to the latest version
   tags: [init,apt,raspberrypi]
-  apt: upgrade=dist update-cache=yes cache_valid_time=86400
-
-#- name: Upgrade all packages to their latest (stable) versions
-#  tags: apt
-#  apt: upgrade=safe update-cache=yes cache_valid_time=86400
+  apt: upgrade=yes update-cache=yes
 
 - name: Install mandatory packages to make system more secure
   tags: [init,apt,raspberrypi]
