@@ -43,65 +43,87 @@
 
 - name: Install mandatory packages to make system more secure
   tags: [init,apt,raspberrypi]
-  apt: pkg={{ item }} state=present update-cache=yes cache_valid_time=86400
-  with_items:
-  - fail2ban
+  apt:
+    state: present
+    update-cache: yes
+    cache_valid_time: 3600
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - fail2ban
 
 - name: Install mandatory packages to make system usable
   tags: [init,apt,raspberrypi]
-  apt: pkg={{ item }} state=present update-cache=yes cache_valid_time=86400
-  with_items:
-  - vim
-  - keychain
-  - git
-  - sudo
-  - rsync
-  - screen
-
-- name: Install mandatory packages to compile stuff (etc. python modules)
-  tags: [init,raspberrypi,apt,development]
-  apt: pkg={{ item }} state=present update-cache=yes cache_valid_time=86400
-  with_items:
-  - build-essential
-  - autoconf
-  - libtool
-  - gettext
-  - libatlas-base-dev
-  - python-dev
-  - python3-dev
-  - python-virtualenv
-  - python3-virtualenv
-  - virtualenvwrapper
-  - python-pip
-  - python3-pip
-  - g++
-  - libxml2-dev
-  - libxslt-dev
-  - libyaml-dev
-  - libpng-dev
-  - libopenjpeg-dev
-  - libtiff5-dev
-  - libwebp-dev
-  - libjpeg-dev
-  - zlib1g-dev
-  - libfontconfig1-dev
-  - libxft-dev
-  - libfreetype6-dev
-
-- name: Link some files to /usr/lib so e.g. pip install pillow is happy
-  tags: [init,raspberrypi]
-  shell: ln -vs /usr/lib/*-linux-gnu*/{libfreetype.so,libz.so,libjpeg.so} /usr/lib/
-  warn: False
-  ignore_errors: True
+  apt:
+    state: present
+    update-cache: yes
+    cache_valid_time: 3600
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - vim
+    - keychain
+    - git
+    - sudo
+    - rsync
+    - screen
+    - autossh
 
 - name: Install other stuff
   tags: [init,apt,raspberrypi]
-  apt: pkg={{ item }} state=present update-cache=yes cache_valid_time=86400
-  with_items:
-  - rpi-update
-  - i2c-tools
-  - python3-smbus
-  - python-smbus
+  apt:
+    state: present
+    update-cache: yes
+    cache_valid_time: 3600
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - rpi-update
+    - i2c-tools
+    - python3-smbus
+    - python-smbus
+
+- name: Install mandatory packages to compile stuff (etc. python modules)
+  tags: [init,raspberrypi,apt,development]
+  apt:
+    state: present
+    update-cache: yes
+    cache_valid_time: 3600
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - build-essential
+    - autoconf
+    - libtool
+    - gettext
+    - libatlas-base-dev
+    - python-dev
+    - python3-dev
+    - python-virtualenv
+    - python3-virtualenv
+    - virtualenvwrapper
+    - python-pip
+    - python3-pip
+    - g++
+    - libxml2-dev
+    - libxslt-dev
+    - libyaml-dev
+    - libpng-dev
+    - libopenjpeg-dev
+    - libtiff5-dev
+    - libwebp-dev
+    - libjpeg-dev
+    - zlib1g-dev
+    - libfontconfig1-dev
+    - libxft-dev
+    - libfreetype6-dev
+
+
+#- name: Link some files to /usr/lib so e.g. pip install pillow is happy
+#  tags: [init,raspberrypi]
+#  shell: ln -vs /usr/lib/*-linux-gnu*/{libfreetype.so,libz.so,libjpeg.so} /usr/lib/
+#  warn: False
+#  ignore_errors: True
 
 - name: Run rpi-update
   tags: [init,raspberrypi]
