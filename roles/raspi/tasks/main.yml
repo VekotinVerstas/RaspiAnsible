@@ -1,6 +1,7 @@
 - include: init.yml
 - include: accesspoint.yml
 - include: i2c.yml
+- include: nbiothat.yml
 - include: camera.yml
 - include: i2ssound.yml
 - include: wifiscan.yml

@@ -69,3 +69,9 @@ Use
 
 `--tags "i2ssound"`
 
+### nbiothat
+Enable some NB-IoT HATs.
+
+Use
+
+`--tags "i2c,nbiothat"`

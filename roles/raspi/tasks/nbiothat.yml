@@ -1,0 +1,47 @@
+- name: Stop service serial-getty
+  tags: nbiothat
+  systemd:
+    name: serial-getty@ttyS0.service
+    state: stopped
+  ignore_errors: true
+
+- name: Disable service serial-getty
+  tags: nbiothat
+  systemd:
+    name: serial-getty@ttyS0.service
+    enabled: no
+  ignore_errors: true
+
+- name: Remove "console=..." from cmdline.txt
+  tags: nbiothat
+  replace:
+    path: /boot/cmdline.txt
+    regexp: "console=(serial0|ttyAMA0),115200 "
+    replace: ""
+
+- name: Make sure uart lines are in boot config 1/2
+  tags: nbiothat
+  replace:
+    path: /boot/config.txt
+    regexp: "^.*enable_uart *=.*"
+    replace: "enable_uart=1"
+
+- name: Make sure uart lines are in boot config 2/2
+  tags: nbiothat
+  lineinfile:
+    path: /boot/config.txt
+    line: '{{ item }}'
+  with_items:
+    - "enable_uart=1"
+
+- name: Install useful software to communicate with HAT
+  tags: nbiothat
+  apt:
+    state: present
+    update-cache: yes
+    cache_valid_time: 3600
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - screen
+    - minicom
