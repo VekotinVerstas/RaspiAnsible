@@ -2,47 +2,55 @@
   tags: init
   hostname: name={{ hostname }}
 
+
 - name: Add hostname to /etc/hosts
-  tags: [init,raspberrypi]
+  tags: [ init,raspberrypi ]
   lineinfile: dest=/etc/hosts line="127.0.1.1 {{ hostname }}"
 
+
 - name: Speed up ssh/sudo in some networks
-  tags: [init,raspberrypi]
+  tags: [ init,raspberrypi ]
   lineinfile: dest=/etc/ssh/sshd_config line="UseDNS no"
 
+
 - name: Generate some locales
-  tags: [init]
+  tags: [ init ]
   locale_gen: name={{ item }} state=present
   with_items:
-  - en_GB.UTF-8
-  - en_US.UTF-8
-  - fi_FI.UTF-8
+    - en_GB.UTF-8
+    - en_US.UTF-8
+    - fi_FI.UTF-8
+
 
 - name: Set /etc/localtime to {{ timezone }}
-  tags: [init,raspberrypi]
+  tags: [ init,raspberrypi ]
   copy: src=/usr/share/zoneinfo/{{ timezone }}
-        dest=/etc/localtime
-        owner=root
-        group=root
-        mode=0644
-        backup=yes
+    dest=/etc/localtime
+    owner=root
+    group=root
+    mode=0644
+    backup=yes
   when: ansible_os_family == "Debian"
 
+
 - name: Set /etc/timezone to {{ timezone }}
-  tags: [init,raspberrypi]
+  tags: [ init,raspberrypi ]
   template: dest=/etc/timezone src=timezone.j2
   when: ansible_os_family == "Debian"
 
+
 - name: update tzdata
-  tags: [init,raspberrypi]
+  tags: [ init,raspberrypi ]
   command: dpkg-reconfigure --frontend noninteractive tzdata
 
+
 - name: Update all packages to the latest version
-  tags: [init,apt,raspberrypi]
+  tags: [ init,apt,raspberrypi ]
   apt: upgrade=yes update-cache=yes
 
+
 - name: Install mandatory packages to make system more secure
-  tags: [init,apt,raspberrypi]
+  tags: [ init,apt,raspberrypi ]
   apt:
     state: present
     update-cache: yes
@@ -50,10 +58,11 @@
     name: "{{ packages }}"
   vars:
     packages:
-    - fail2ban
+      - fail2ban
+
 
 - name: Install mandatory packages to make system usable
-  tags: [init,apt,raspberrypi]
+  tags: [ init,apt,raspberrypi ]
   apt:
     state: present
     update-cache: yes
@@ -61,16 +70,17 @@
     name: "{{ packages }}"
   vars:
     packages:
-    - vim
-    - keychain
-    - git
-    - sudo
-    - rsync
-    - screen
-    - autossh
+      - vim
+      - keychain
+      - git
+      - sudo
+      - rsync
+      - screen
+      - autossh
+
 
 - name: Install other stuff
-  tags: [init,apt,raspberrypi]
+  tags: [ init,apt,raspberrypi ]
   apt:
     state: present
     update-cache: yes
@@ -78,13 +88,14 @@
     name: "{{ packages }}"
   vars:
     packages:
-    - rpi-update
-    - i2c-tools
-    - python3-smbus
-    - python-smbus
+      - rpi-update
+      - i2c-tools
+      - python3-smbus
+      - python-smbus
+
 
 - name: Install mandatory packages to compile stuff (etc. python modules)
-  tags: [init,raspberrypi,apt,development]
+  tags: [ init,raspberrypi,apt,development ]
   apt:
     state: present
     update-cache: yes
@@ -92,40 +103,28 @@
     name: "{{ packages }}"
   vars:
     packages:
-    - build-essential
-    - autoconf
-    - libtool
-    - gettext
-    - libatlas-base-dev
-    - python-dev
-    - python3-dev
-    - python-virtualenv
-    - python3-virtualenv
-    - virtualenvwrapper
-    - python-pip
-    - python3-pip
-    - g++
-    - libxml2-dev
-    - libxslt-dev
-    - libyaml-dev
-    - libpng-dev
-    - libopenjpeg-dev
-    - libtiff5-dev
-    - libwebp-dev
-    - libjpeg-dev
-    - zlib1g-dev
-    - libfontconfig1-dev
-    - libxft-dev
-    - libfreetype6-dev
-
-
-#- name: Link some files to /usr/lib so e.g. pip install pillow is happy
-#  tags: [init,raspberrypi]
-#  shell: ln -vs /usr/lib/*-linux-gnu*/{libfreetype.so,libz.so,libjpeg.so} /usr/lib/
-#  warn: False
-#  ignore_errors: True
-
-- name: Run rpi-update
-  tags: [init,raspberrypi]
-  command: rpi-update
-  become: true
+      - build-essential
+      - autoconf
+      - libtool
+      - gettext
+      - libatlas-base-dev
+      - python-dev
+      - python3-dev
+      - python-virtualenv
+      - python3-virtualenv
+      - virtualenvwrapper
+      - python-pip
+      - python3-pip
+      - g++
+      - libxml2-dev
+      - libxslt-dev
+      - libyaml-dev
+      - libpng-dev
+      - libopenjpeg-dev
+      - libtiff5-dev
+      - libwebp-dev
+      - libjpeg-dev
+      - zlib1g-dev
+      - libfontconfig1-dev
+      - libxft-dev
+      - libfreetype6-dev
