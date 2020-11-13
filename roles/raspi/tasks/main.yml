@@ -1,5 +1,6 @@
 - include: init.yml
 - include: accesspoint.yml
+- include: reversessh.yml
 - include: i2c.yml
 - include: nbiothat.yml
 - include: camera.yml

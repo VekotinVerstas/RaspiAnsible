@@ -2,10 +2,9 @@
 
 This repository contains Ansible-playbooks for automatically
 install and configure various application combinations on
-Raspberry pi 3 computer.
+Raspberry Pi 3 or 4 computer and Raspberry Pi OS 2020-08-20.
 
 ## Usage
-
 
 Copy your ssh public key to Raspi manually or using ssh-copy-id:
 
@@ -54,12 +53,33 @@ Use
 
 `--extra-vars "hostname=newraspi.local ap_ssid=SSID ap_passphrase=PASS" --tags "accesspoint"`
 
+### reversessh
+
+Install reverse ssh tunnel using autossh
+
+Extra-vars
+ * sshport - port to use in remote host. This must be unique for all Raspis
+ * sshhost - remote host to connect
+ 
+Use
+
+`--extra-vars "sshport=6543 sshhost=server.example.com" --tags "reversessh"`
+
+After installation of reversessh you must manually
+* ensure remote host has a retricted user `pi` for ssh connections
+* add key `/root/.ssh/id_ed25519_nopw.pub` to user `pi`'s `/home/pi/.ssh/authorized_keys`
+* try that connection works with command  
+  `sudo ssh -i /root/.ssh/id_ed25519_nopw pi@server.example.com`
+* reboot Raspberry Pi and after it has booted up, try reverse ssh connection from remote
+host using command  
+`ssh pi@localhost -p 6543`
+
 ### camera
 Enable camera module.
 
 Use
 
-`--tags "accesspoint"`
+`--tags "camera"`
 
 ### i2ssound
 Install and compile software to enable I2S MEMS microphone.

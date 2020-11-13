@@ -76,7 +76,6 @@
       - sudo
       - rsync
       - screen
-      - autossh
 
 
 - name: Install other stuff

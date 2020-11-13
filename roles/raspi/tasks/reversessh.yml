@@ -1,0 +1,45 @@
+- name: Install AutoSSH related packages
+  tags: reversessh
+  apt:
+    state: present
+    update-cache: yes
+    cache_valid_time: 3600
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - autossh
+
+
+- name: Create /root/.ssh if it does not exist
+  tags: reversessh
+  file:
+    path: /root/.ssh
+    state: directory
+    mode: '0700'
+
+
+- name: Generate SSH key "{{ssh_key_filename}}"
+  tags: reversessh
+  openssh_keypair:
+    path: "/root/.ssh/id_ed25519_nopw"
+    type: ed25519
+    state: present
+    force: no
+
+- name: Copy .ssh/config
+  tags: reversessh
+  copy: src=ssh_config
+    dest=/root/.ssh/config
+    owner=root
+    group=root
+    mode=0600
+
+
+- name: Add autossh command to rc.local
+  tags: reversessh
+  blockinfile:
+    path: /etc/rc.local
+    insertbefore: exit 0
+    block: |
+      export AUTOSSH_LOGFILE="/tmp/autossh.log"
+      (sleep 30; autossh -M 10984 -N -f -o "PubkeyAuthentication=yes" -o "PasswordAuthentication=no" -o "ServerAliveInterval 60" -o "ServerAliveCountMax 3" -i /root/.ssh/id_ed25519_nopw -R {{sshport}}:localhost:22 pi@{{sshhost}}) &
