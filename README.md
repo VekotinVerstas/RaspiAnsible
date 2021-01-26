@@ -1,4 +1,4 @@
-# Automated software install to Raspbian Stretch
+# Automated software installation on Raspberry Pi OS
 
 This repository contains Ansible-playbooks for automatically
 install and configure various application combinations on

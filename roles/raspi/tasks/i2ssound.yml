@@ -29,11 +29,16 @@
 
 - name: Install packages to compile kernel modules
   tags: i2ssound
-  apt: pkg={{ item }} state=present update-cache=yes cache_valid_time=86400
-  with_items:
-  - git
-  - bc
-  - libncurses5-dev
+  apt:
+    state: present
+    update-cache: yes
+    cache_valid_time: 3600
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - git
+    - bc
+    - libncurses5-dev
 
 - name: Download rpi-source
   tags: i2ssound
@@ -83,10 +88,10 @@
         group=root
         mode=0755
 
-- name: Run build script
-  tags: i2ssound
-  chdir: /usr/local/src/rpi-i2s-audio
-  command: sh /usr/local/src/rpi-i2s-audio/build_i2s_module.sh
+#- name: Run build script
+#  tags: i2ssound
+#  chdir: /usr/local/src/rpi-i2s-audio
+#  command: sh /usr/local/src/rpi-i2s-audio/build_i2s_module.sh
 
 # sudo insmod my_loader.ko
 #- name: Install module
@@ -107,13 +112,14 @@
     path: /etc/modules
     line: my_loader
 
-# sudo depmod -a
 - name: depmod -a
   tags: i2ssound
   command: depmod -a
 
-# sudo modprobe my_loader
 - name: modprobe my_loader
   tags: i2ssound
   command: modprobe my_loader
 
+- name: Copy alsa config file
+  tags: i2ssound
+  copy: src=asound.conf dest=/etc/asound.conf owner=root group=root mode=0644 force=no

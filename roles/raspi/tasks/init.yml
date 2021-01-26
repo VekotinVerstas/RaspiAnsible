@@ -44,6 +44,16 @@
   command: dpkg-reconfigure --frontend noninteractive tzdata
 
 
+- name: Copy .bashrc
+  tags: [ init,raspberrypi ]
+  copy: src=bashrc dest=/home/pi/.bashrc owner=pi group=pi mode=0644
+
+
+- name: Copy .vimrc
+  tags: [ init,raspberrypi ]
+  template: src=vimrc.j2 dest=/home/pi/.vimrc owner=pi group=pi mode=0644
+
+
 - name: Update all packages to the latest version
   tags: [ init,apt,raspberrypi ]
   apt: upgrade=yes update-cache=yes
@@ -120,6 +130,7 @@
       - libyaml-dev
       - libpng-dev
       - libopenjpeg-dev
+      - libopenjp2-7-dev
       - libtiff5-dev
       - libwebp-dev
       - libjpeg-dev

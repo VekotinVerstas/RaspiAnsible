@@ -45,11 +45,11 @@
         group=root
         mode=0755
 
-- name: Run build script
-  tags: wifiscan
-  become: yes
-  chdir: /usr/local/src/aircrack-ng-1.2
-  command: sh /usr/local/src/aircrack-ng-1.2/build_aircrack-ng.sh
+#- name: Run build script
+#  tags: wifiscan
+#  become: yes
+#  chdir: /usr/local/src/aircrack-ng-1.2
+#  command: sh /usr/local/src/aircrack-ng-1.2/build_aircrack-ng.sh
 
 - name: Run airodump-ng-oui-update
   tags: wifiscan

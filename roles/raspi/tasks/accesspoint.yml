@@ -9,6 +9,8 @@
     packages:
       - dnsmasq
       - hostapd
+      - netfilter-persistent
+      - iptables-persistent
 
 
 - name: Ignore wlan0 from dhcpcd

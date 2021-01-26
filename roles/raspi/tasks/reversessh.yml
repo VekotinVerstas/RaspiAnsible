@@ -26,6 +26,7 @@
     state: present
     force: no
 
+
 - name: Copy .ssh/config
   tags: reversessh
   copy: src=ssh_config
