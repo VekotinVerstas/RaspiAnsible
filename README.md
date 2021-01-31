@@ -53,6 +53,16 @@ Use
 
 `--extra-vars "hostname=newraspi.local ap_ssid=SSID ap_passphrase=PASS" --tags "accesspoint"`
 
+### python3
+Download, extract, compile and install the latest Python3
+
+Extra-vars
+ * python_version - Desired Python version
+ 
+Use
+
+`--extra-vars "python_version=3.9.1" --tags "python3"`
+
 ### reversessh
 
 Install reverse ssh tunnel using autossh
