@@ -2,4 +2,4 @@
 *.retry
 *.swp
 .idea
-sshkeys/*.pub
+roles/raspi/files/sshkeys/*.pub
