@@ -18,13 +18,21 @@
     mode: '0700'
 
 
-- name: Generate SSH key "{{ssh_key_filename}}"
+- name: Generate SSH key id_ed25519_nopw
   tags: reversessh
   openssh_keypair:
     path: "/root/.ssh/id_ed25519_nopw"
     type: ed25519
     state: present
     force: no
+
+
+- name: Fetch new public key from remote Raspi
+  tags: reversessh
+  ansible.builtin.fetch:
+    src: "/root/.ssh/id_ed25519_nopw.pub"
+    dest: "pubkeys/{{ ansible_facts['nodename'] }}-reverse-sshkey.pub"
+    flat: yes
 
 
 - name: Copy .ssh/config

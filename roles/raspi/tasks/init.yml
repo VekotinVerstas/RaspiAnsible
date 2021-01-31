@@ -59,6 +59,13 @@
   apt: upgrade=yes update-cache=yes
 
 
+- name: Set up authorized_keys for user pi
+  tags: [ init,raspberrypi ]
+  authorized_key: user=pi key="{{ lookup('file', item) }}"
+  with_fileglob:
+    - sshkeys/*.pub
+
+
 - name: Install mandatory packages to make system more secure
   tags: [ init,apt,raspberrypi ]
   apt:
